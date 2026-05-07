@@ -20,32 +20,70 @@
 ================================================================
 [DEPLOY] Step 1/6: 服务器环境准备
 ================================================================
-[2026-05-07 12:39:33] ===== 服务器环境准备开始 =====
-[2026-05-07 12:39:33] 1/6 更新包索引...
+[2026-05-07 12:45:25] ===== 服务器环境准备开始 =====
+[2026-05-07 12:45:25] 1/6 更新包索引...
 W: file:/var/cudnn-local-repo-ubuntu2004-8.3.3.40/Release.gpg: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
 W: https://nvidia.github.io/libnvidia-container/stable/ubuntu18.04/amd64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
 W: https://nvidia.github.io/nvidia-container-runtime/stable/ubuntu18.04/amd64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
 W: https://nvidia.github.io/nvidia-docker/ubuntu18.04/amd64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
-[2026-05-07 12:39:37] 2/6 安装基础工具 (git, curl, jq, unzip, ca-certificates)...
-[2026-05-07 12:39:38] 3/6 Docker 已安装，跳过
+[2026-05-07 12:45:29] 2/6 安装基础工具 (git, curl, jq, unzip, ca-certificates)...
+[2026-05-07 12:45:29] 3/6 Docker 已安装，跳过
 Docker version 28.3.3, build 980b856
-[2026-05-07 12:39:38] 4/6 Docker Compose 已可用
+[2026-05-07 12:45:29] 4/6 Docker Compose 已可用
 Docker Compose version v2.38.2
-[2026-05-07 12:39:38] 5/6 创建 Overleaf 工作目录...
-[2026-05-07 12:39:38] 工作目录: /home/dchen/projects/overleaf
-[2026-05-07 12:39:38] 6/6 检查端口占用...
-[2026-05-07 12:39:38] 请确保以下端口可访问: 443/tcp (HTTPS), 80/tcp (HTTP)
-[2026-05-07 12:39:38] ===== 服务器环境准备完成 =====
-[2026-05-07 12:39:38] Docker: Docker version 28.3.3, build 980b856
-[2026-05-07 12:39:38] Docker Compose: Docker Compose version v2.38.2
-[2026-05-07 12:39:38] 工作目录: /home/dchen/projects/overleaf
+[2026-05-07 12:45:29] 5/6 创建 Overleaf 工作目录...
+[2026-05-07 12:45:29] 工作目录: /home/dchen/projects/overleaf
+[2026-05-07 12:45:29] 6/6 检查端口占用...
+[2026-05-07 12:45:29] 请确保以下端口可访问: 443/tcp (HTTPS), 80/tcp (HTTP)
+[2026-05-07 12:45:29] ===== 服务器环境准备完成 =====
+[2026-05-07 12:45:29] Docker: Docker version 28.3.3, build 980b856
+[2026-05-07 12:45:29] Docker Compose: Docker Compose version v2.38.2
+[2026-05-07 12:45:29] 工作目录: /home/dchen/projects/overleaf
 
 ================================================================
 [DEPLOY] Step 2/6: 部署 Overleaf Toolkit
 ================================================================
-[2026-05-07 12:39:38] ===== 部署 Overleaf Toolkit =====
-[2026-05-07 12:39:38] 1/4 Toolkit 目录已存在，拉取最新代码...
+[2026-05-07 12:45:29] ===== 部署 Overleaf Toolkit =====
+[2026-05-07 12:45:29] 1/4 Toolkit 目录已存在，拉取最新代码...
 Already up to date.
-[2026-05-07 12:39:38] 2/4 初始化配置...
+[2026-05-07 12:45:30] 2/4 初始化配置...
 ERROR: TLS config files already exist, exiting
 ERROR: Config files already exist, exiting
+[2026-05-07 12:45:30] 配置文件已存在，跳过 init（后续步骤会覆写配置）
+[2026-05-07 12:45:30] 3/4 生成 config/overleaf.rc...
+[2026-05-07 12:45:30] 4/4 生成 config/variables.env...
+[2026-05-07 12:45:30] ===== Overleaf Toolkit 部署配置完成 =====
+[2026-05-07 12:45:30] Toolkit 目录: /home/dchen/projects/overleaf/overleaf-toolkit
+[2026-05-07 12:45:30] 数据目录: /home/dchen/projects/overleaf/data/
+[2026-05-07 12:45:30] 站点地址: https://143.89.76.81
+[2026-05-07 12:45:30] 
+[2026-05-07 12:45:30] 注意：请先完成 TLS 证书配置 (03-setup-tls.sh) 后再启动服务
+
+================================================================
+[DEPLOY] Step 3/6: TLS 证书配置
+================================================================
+[2026-05-07 12:45:30] ===== TLS 证书配置 (模式: self-signed) =====
+[2026-05-07 12:45:30] 生成自签名证书 (CN=143.89.76.81)...
+...+.+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*...+...+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*.........+...+.....+.........+......+...+....+............+.....+..........+.....+...+.+..+....+...+..+.........+.+.....+....+.........+......+..+............+..........+.....+...+.........+...+......+.......+.........+...+.....+......+......+.+........+....+.....+...+............+.+.................+...+.+.....+....+............+...+..+....+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+............+.....+.+..+.......+.....+......+.......+..+...+.......+...+.........+.........+.....+.+...+..+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*.+......+.+..+......+.+....................+....+..+...+....+..+.+.........+.....+....+..+.......+...+..+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*...........+.....+..........+.......................+...+..........+......+.....+.+............+...+........+......+.........+..........+..+....+...+......+..............+......+..........+..............+.......+......+..+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-----
+[2026-05-07 12:45:30] 自签名证书已生成：
+[2026-05-07 12:45:30]   证书: /home/dchen/projects/overleaf/overleaf-toolkit/config/nginx/certs/overleaf_certificate.pem
+[2026-05-07 12:45:30]   私钥: /home/dchen/projects/overleaf/overleaf-toolkit/config/nginx/certs/overleaf_key.pem
+[2026-05-07 12:45:30] 
+[2026-05-07 12:45:30] 注意：浏览器会显示安全警告，这是正常现象。
+[2026-05-07 12:45:30] 你可以在客户端手动信任此证书以消除警告。
+[2026-05-07 12:45:30] ===== TLS 证书配置完成 =====
+
+================================================================
+[DEPLOY] Step 4/6: 启动 Overleaf 服务
+================================================================
+拉取 Docker 镜像（首次可能较慢）...
+---------------------  ERROR  -----------------------
+  The mongo image is now split between MONGO_IMAGE and MONGO_VERSION configurations.
+  Please update your config/overleaf.rc.
+
+  MONGO_VERSION must start with the actual major version of mongo, followed by a dot.
+  Example: MONGO_IMAGE=my.dockerhub.com/custom-mongo
+           MONGO_VERSION=6.0-custom
+---------------------  ERROR  -----------------------
