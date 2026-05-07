@@ -285,19 +285,18 @@ main() {
     # 同步单个项目
     projects_json=$(docker exec mongo mongosh --quiet "mongodb://localhost/sharelatex" --eval "
       const p = db.projects.findOne({_id: ObjectId('${SINGLE_PROJECT_ID}')}, {name: 1});
-      if (p) printjson([{id: p._id.toString(), name: p.name}]);
-      else printjson([]);
+      if (p) print(JSON.stringify([{id: p._id.toString(), name: p.name}]));
+      else print('[]');
     " 2>/dev/null || echo "[]")
   else
     # 同步所有项目
     projects_json=$(docker exec mongo mongosh --quiet "mongodb://localhost/sharelatex" --eval "
       const projects = db.projects.find({}, {name: 1}).toArray();
-      printjson(projects.map(p => ({id: p._id.toString(), name: p.name})));
+      print(JSON.stringify(projects.map(p => ({id: p._id.toString(), name: p.name}))));
     " 2>/dev/null || echo "[]")
   fi
 
-  # 解析 JSON，兼容 mongosh 多行输出格式
-  # 将多行 JSON 合并为单行，然后提取有效的 JSON 数组
+  # 提取有效的 JSON 数组（过滤掉 mongosh 可能输出的非 JSON 行）
   projects_json=$(echo "${projects_json}" | tr '\n' ' ' | grep -o '\[.*\]')
 
   local count
