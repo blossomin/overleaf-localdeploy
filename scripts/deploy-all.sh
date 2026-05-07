@@ -133,7 +133,7 @@ export DOMAIN="${DOMAIN}"
 export ADMIN_EMAIL="${ADMIN_EMAIL}"
 export GITHUB_USER="${GITHUB_USER}"
 SECRETEOF
-chmod 600 "${SCRIPT_DIR}/env.secret"
+# env.secret 不设特殊权限，仅通过 .gitignore 排除
 
 # ---- 将非敏感配置回写到 env.conf（可安全提交 git）----
 cat > "${SCRIPT_DIR}/env.conf" << ENVCONFEOF

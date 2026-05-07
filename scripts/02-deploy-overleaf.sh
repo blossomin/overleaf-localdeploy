@@ -36,7 +36,18 @@ cd "${TOOLKIT_DIR}"
 
 # ---------- 2. 初始化配置（含 TLS） ----------
 log "2/4 初始化配置..."
-bin/init --tls 2>/dev/null || bin/init
+# bin/init 在配置已存在时会报错退出，这是安全的——忽略即可
+# 后续步骤会用 cat > 覆写 overleaf.rc 和 variables.env
+bin/init --tls 2>/dev/null || bin/init 2>/dev/null || {
+  log "配置文件已存在，跳过 init（后续步骤会覆写配置）"
+}
+# 无论 init 是否成功，确保必要的目录和文件存在
+mkdir -p config/nginx/certs
+# 确保 version 文件存在（bin/init 生成的，控制 docker 镜像版本）
+if [[ ! -f config/version ]]; then
+  echo "5.5" > config/version
+  log "已创建 config/version (默认 5.5)"
+fi
 
 # ---------- 3. 生成 overleaf.rc ----------
 log "3/4 生成 config/overleaf.rc..."
