@@ -43,10 +43,27 @@ bin/init --tls 2>/dev/null || bin/init 2>/dev/null || {
 }
 # 无论 init 是否成功，确保必要的目录和文件存在
 mkdir -p config/nginx/certs
-# 设置 docker 镜像版本（bin/init 生成的，控制 docker 镜像版本）
-# 使用 with-texlive-full 镜像，包含完整的 TexLive 发行版
-echo "6.1.0-with-texlive-full" > config/version
-log "已设置 config/version = 6.1.0-with-texlive-full"
+# 设置 docker 镜像版本
+echo "6.1.2" > config/version
+log "已设置 config/version = 6.1.2"
+
+# 构建自定义镜像（包含学术论文常用 TexLive 宏包）
+CUSTOM_IMAGE="rakusa/sharelatex-custom:6.1.2"
+if ! docker image inspect "${CUSTOM_IMAGE}" >/dev/null 2>&1; then
+  log "构建自定义 TexLive 镜像（首次需要 10-20 分钟）..."
+  docker build -f "${SCRIPT_DIR}/Dockerfile.custom-texlive" -t "${CUSTOM_IMAGE}" "${SCRIPT_DIR}"
+else
+  log "自定义镜像已存在: ${CUSTOM_IMAGE}，跳过构建"
+fi
+
+# 通过 docker-compose.override.yml 覆盖默认镜像
+cat > config/docker-compose.override.yml << OVERRIDEEOF
+---
+services:
+  sharelatex:
+    image: ${CUSTOM_IMAGE}
+OVERRIDEEOF
+log "已配置 docker-compose.override.yml 使用 ${CUSTOM_IMAGE}"
 
 # ---------- 3. 生成 overleaf.rc ----------
 log "3/4 生成 config/overleaf.rc..."
