@@ -296,8 +296,9 @@ main() {
     " 2>/dev/null || echo "[]")
   fi
 
-  # 解析 JSON，兼容不同 mongosh 输出格式
-  projects_json=$(echo "${projects_json}" | grep -v "^$" | tail -1)
+  # 解析 JSON，兼容 mongosh 多行输出格式
+  # 将多行 JSON 合并为单行，然后提取有效的 JSON 数组
+  projects_json=$(echo "${projects_json}" | tr '\n' ' ' | grep -o '\[.*\]')
 
   local count
   count=$(echo "${projects_json}" | jq 'length' 2>/dev/null || echo "0")
