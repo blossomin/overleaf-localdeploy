@@ -47,23 +47,14 @@ mkdir -p config/nginx/certs
 echo "6.1.2" > config/version
 log "已设置 config/version = 6.1.2"
 
-# 构建自定义镜像（包含学术论文常用 TexLive 宏包）
-CUSTOM_IMAGE="rakusa/sharelatex-custom:6.1.2"
-if ! docker image inspect "${CUSTOM_IMAGE}" >/dev/null 2>&1; then
-  log "构建自定义 TexLive 镜像（首次需要 10-20 分钟）..."
-  docker build -f "${SCRIPT_DIR}/Dockerfile.custom-texlive" -t "${CUSTOM_IMAGE}" "${SCRIPT_DIR}"
-else
-  log "自定义镜像已存在: ${CUSTOM_IMAGE}，跳过构建"
-fi
-
-# 通过 docker-compose.override.yml 覆盖默认镜像
-cat > config/docker-compose.override.yml << OVERRIDEEOF
+# 通过 docker-compose.override.yml 使用包含完整 TexLive 的镜像
+cat > config/docker-compose.override.yml << 'OVERRIDEEOF'
 ---
 services:
   sharelatex:
-    image: ${CUSTOM_IMAGE}
+    image: wrm244/sharelatex:with-texlive-full
 OVERRIDEEOF
-log "已配置 docker-compose.override.yml 使用 ${CUSTOM_IMAGE}"
+log "已配置 docker-compose.override.yml 使用 wrm244/sharelatex:with-texlive-full"
 
 # ---------- 3. 生成 overleaf.rc ----------
 log "3/4 生成 config/overleaf.rc..."
