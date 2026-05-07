@@ -81,10 +81,16 @@ bin/up -d
 
 # ---- 等待服务就绪 ----
 SITE="${DOMAIN:-${PUBLIC_IP}}"
-log "等待服务就绪 (最多 120 秒)..."
+# 非标准端口时需要在 URL 中加上端口号
+if [[ "${TLS_PORT}" == "443" ]]; then
+  SITE_URL="https://${SITE}"
+else
+  SITE_URL="https://${SITE}:${TLS_PORT}"
+fi
+log "等待服务就绪 (最多 120 秒)... ${SITE_URL}"
 READY=false
 for i in $(seq 1 24); do
-  if curl -sk "https://${SITE}/" >/dev/null 2>&1; then
+  if curl -sk "${SITE_URL}/" >/dev/null 2>&1; then
     READY=true
     break
   fi
@@ -107,4 +113,4 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "sharel
 
 echo ""
 log "重部署完成！数据已完整保留。"
-log "访问: https://${SITE}"
+log "访问: ${SITE_URL}"

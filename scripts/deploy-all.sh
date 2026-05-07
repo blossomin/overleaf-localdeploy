@@ -206,9 +206,15 @@ bin/docker-compose pull
 echo "启动服务..."
 bin/up -d
 
-echo "等待服务就绪 (最多 120 秒)..."
+# 非标准端口时需要在 URL 中加上端口号
+if [[ "${TLS_PORT}" == "443" ]]; then
+  CHECK_URL="https://${SITE}"
+else
+  CHECK_URL="https://${SITE}:${TLS_PORT}"
+fi
+echo "等待服务就绪 (最多 120 秒)... ${CHECK_URL}"
 for i in $(seq 1 24); do
-  if curl -sk "https://${SITE}/" >/dev/null 2>&1; then
+  if curl -sk "${CHECK_URL}/" >/dev/null 2>&1; then
     echo "Overleaf 服务已就绪!"
     break
   fi
