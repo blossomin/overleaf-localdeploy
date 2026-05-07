@@ -7,31 +7,45 @@
   站点地址:      https://143.89.76.81
   TLS 模式:      self-signed
   GitHub 用户:   blossomin
-  管理员邮箱:    sakura.chdong@gmail.com
+  管理员邮箱:    admin@example.com
   同步间隔:      每 30 分钟
   安装目录:      /home/dchen/projects/overleaf
 ============================================
 
 确认以上配置开始部署？(y/N) 
 ================================================================
-[DEPLOY] env.conf 已更新
+[DEPLOY] env.conf + env.secret 已更新
 ================================================================
 
 ================================================================
 [DEPLOY] Step 1/6: 服务器环境准备
 ================================================================
-[2026-05-07 11:32:01] ===== 服务器环境准备开始 =====
-[2026-05-07 11:32:01] 1/6 更新包索引...
+[2026-05-07 12:39:33] ===== 服务器环境准备开始 =====
+[2026-05-07 12:39:33] 1/6 更新包索引...
 W: file:/var/cudnn-local-repo-ubuntu2004-8.3.3.40/Release.gpg: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
 W: https://nvidia.github.io/libnvidia-container/stable/ubuntu18.04/amd64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
 W: https://nvidia.github.io/nvidia-container-runtime/stable/ubuntu18.04/amd64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
 W: https://nvidia.github.io/nvidia-docker/ubuntu18.04/amd64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
-[2026-05-07 11:32:05] 2/6 安装基础工具 (git, curl, jq, unzip, ca-certificates)...
-[2026-05-07 11:32:05] 3/6 Docker 已安装，跳过
+[2026-05-07 12:39:37] 2/6 安装基础工具 (git, curl, jq, unzip, ca-certificates)...
+[2026-05-07 12:39:38] 3/6 Docker 已安装，跳过
 Docker version 28.3.3, build 980b856
-[2026-05-07 11:32:06] 4/6 Docker Compose 已可用
+[2026-05-07 12:39:38] 4/6 Docker Compose 已可用
 Docker Compose version v2.38.2
-[2026-05-07 11:32:06] 5/6 创建 Overleaf 工作目录...
-[2026-05-07 11:32:06] 工作目录: /home/dchen/projects/overleaf
-[2026-05-07 11:32:06] 6/6 检查端口占用...
-/home/dchen/projects/overleaf/scripts/01-server-setup.sh: line 78: TLS_PORT: unbound variable
+[2026-05-07 12:39:38] 5/6 创建 Overleaf 工作目录...
+[2026-05-07 12:39:38] 工作目录: /home/dchen/projects/overleaf
+[2026-05-07 12:39:38] 6/6 检查端口占用...
+[2026-05-07 12:39:38] 请确保以下端口可访问: 443/tcp (HTTPS), 80/tcp (HTTP)
+[2026-05-07 12:39:38] ===== 服务器环境准备完成 =====
+[2026-05-07 12:39:38] Docker: Docker version 28.3.3, build 980b856
+[2026-05-07 12:39:38] Docker Compose: Docker Compose version v2.38.2
+[2026-05-07 12:39:38] 工作目录: /home/dchen/projects/overleaf
+
+================================================================
+[DEPLOY] Step 2/6: 部署 Overleaf Toolkit
+================================================================
+[2026-05-07 12:39:38] ===== 部署 Overleaf Toolkit =====
+[2026-05-07 12:39:38] 1/4 Toolkit 目录已存在，拉取最新代码...
+Already up to date.
+[2026-05-07 12:39:38] 2/4 初始化配置...
+ERROR: TLS config files already exist, exiting
+ERROR: Config files already exist, exiting
