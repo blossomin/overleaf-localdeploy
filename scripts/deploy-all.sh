@@ -21,6 +21,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---- 从 env.conf 加载默认值 ----
 source "${SCRIPT_DIR}/env.conf"
 
+# ---- 兜底默认值（防止 env.conf 中缺少某些变量）----
+: "${TLS_PORT:=443}"
+: "${NGINX_HTTP_PORT:=80}"
+: "${OVERLEAF_PORT:=8080}"
+: "${TLS_MODE:=self-signed}"
+: "${ADMIN_EMAIL:=admin@example.com}"
+: "${SYNC_INTERVAL:=30}"
+: "${REPO_VISIBILITY:=private}"
+
 # ---- 帮助信息 ----
 usage() {
   cat << EOF
@@ -37,6 +46,9 @@ usage() {
   --domain <DOMAIN>      域名 (如有，用于 TLS 证书)
   --admin-email <EMAIL>  管理员邮箱 (默认: admin@example.com)
   --tls-mode <MODE>      TLS 模式: self-signed | letsencrypt (默认: self-signed)
+  --tls-port <PORT>      HTTPS 端口 (默认: ${TLS_PORT:-443})
+  --http-port <PORT>     HTTP 重定向端口 (默认: ${NGINX_HTTP_PORT:-80})
+  --overleaf-port <PORT> Overleaf 内部端口 (默认: ${OVERLEAF_PORT:-8080})
   --sync-interval <MIN>  GitHub 同步间隔分钟数 (默认: 30)
   --base-dir <DIR>       Overleaf 安装目录 (默认: ${OVERLEAF_BASE_DIR})
   --help                 显示帮助
@@ -61,6 +73,9 @@ while [[ $# -gt 0 ]]; do
     --github-user)    GITHUB_USER="$2"; shift 2 ;;
     --admin-email)    ADMIN_EMAIL="$2"; shift 2 ;;
     --tls-mode)       TLS_MODE="$2"; shift 2 ;;
+    --tls-port)       TLS_PORT="$2"; shift 2 ;;
+    --http-port)      NGINX_HTTP_PORT="$2"; shift 2 ;;
+    --overleaf-port)  OVERLEAF_PORT="$2"; shift 2 ;;
     --sync-interval)  SYNC_INTERVAL="$2"; shift 2 ;;
     --base-dir)       OVERLEAF_BASE_DIR="$2"; shift 2 ;;
     --help)           usage; exit 0 ;;
@@ -106,31 +121,55 @@ read -rp "确认以上配置开始部署？(y/N) " confirm
 
 log() { echo ""; echo "================================================================"; echo "[DEPLOY] $*"; echo "================================================================"; }
 
-# ---- 将最终配置回写到 env.conf，供所有子脚本 source ----
-cat > "${SCRIPT_DIR}/env.conf" << ENVCONFEOF
+# ---- 将敏感信息写入 env.secret（不入 git）----
+cat > "${SCRIPT_DIR}/env.secret" << SECRETEOF
 ######################################################################
-# env.conf - Overleaf 部署全局环境变量配置
-# 所有脚本启动时会自动 source 此文件
+# env.secret - 敏感配置（不入 git）
 # 由 deploy-all.sh 自动生成于 $(date '+%Y-%m-%d %H:%M:%S')
 ######################################################################
+export GITHUB_TOKEN="${GITHUB_TOKEN}"
+export PUBLIC_IP="${PUBLIC_IP}"
+export DOMAIN="${DOMAIN}"
+export ADMIN_EMAIL="${ADMIN_EMAIL}"
+export GITHUB_USER="${GITHUB_USER}"
+SECRETEOF
+chmod 600 "${SCRIPT_DIR}/env.secret"
+
+# ---- 将非敏感配置回写到 env.conf（可安全提交 git）----
+cat > "${SCRIPT_DIR}/env.conf" << ENVCONFEOF
+######################################################################
+# env.conf - Overleaf 部署全局环境变量配置（可安全提交到 git）
+# 所有脚本启动时会自动 source 此文件
+# 敏感信息在 env.secret 中，不要在此文件写入 Token 等敏感值
+# 由 deploy-all.sh 自动生成于 $(date '+%Y-%m-%d %H:%M:%S')
+######################################################################
+
+# ---- 加载敏感配置（env.secret 不入 git）----
+SCRIPT_DIR_CONF="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "\${SCRIPT_DIR_CONF}/env.secret" ]]; then
+  source "\${SCRIPT_DIR_CONF}/env.secret"
+fi
 
 # ---- 基础路径 ----
 export OVERLEAF_BASE_DIR="${OVERLEAF_BASE_DIR}"
 
-# ---- Overleaf 服务配置 ----
+# ---- Overleaf 服务端口 ----
 export OVERLEAF_PORT="${OVERLEAF_PORT}"
 
-# ---- 网络配置 ----
-export PUBLIC_IP="${PUBLIC_IP}"
-export DOMAIN="${DOMAIN}"
-export ADMIN_EMAIL="${ADMIN_EMAIL}"
+# ---- 对外端口 ----
+export TLS_PORT="${TLS_PORT}"
+export NGINX_HTTP_PORT="${NGINX_HTTP_PORT}"
+
+# ---- 网络配置（非敏感值从 env.secret 加载，这里提供兜底默认值）----
+export PUBLIC_IP="\${PUBLIC_IP:-}"
+export DOMAIN="\${DOMAIN:-}"
+export ADMIN_EMAIL="\${ADMIN_EMAIL:-admin@example.com}"
 
 # ---- TLS 配置 ----
 export TLS_MODE="${TLS_MODE}"
 
-# ---- GitHub 同步配置 ----
-export GITHUB_TOKEN="${GITHUB_TOKEN}"
-export GITHUB_USER="${GITHUB_USER}"
+# ---- GitHub 同步配置（Token 从 env.secret 加载）----
+export GITHUB_USER="\${GITHUB_USER:-}"
 export REPO_VISIBILITY="${REPO_VISIBILITY:-private}"
 export SYNC_INTERVAL="${SYNC_INTERVAL}"
 
@@ -142,9 +181,9 @@ export SCRIPTS_DIR="\${OVERLEAF_BASE_DIR}/scripts"
 export LOGS_DIR="\${OVERLEAF_BASE_DIR}/logs"
 ENVCONFEOF
 
-log "env.conf 已更新"
+log "env.conf + env.secret 已更新"
 
-# ---- 重新 source 以加载派生路径 ----
+# ---- 重新 source 以加载完整配置 ----
 source "${SCRIPT_DIR}/env.conf"
 
 # ======== Step 1: 服务器环境准备 ========
