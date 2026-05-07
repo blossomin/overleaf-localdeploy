@@ -24,17 +24,21 @@ log "===== GitHub 同步系统初始化 ====="
 # ---------- 1. 创建目录 ----------
 mkdir -p "${SYNC_DIR}" "${REPOS_DIR}" "${SCRIPTS_DIR}" "${LOGS_DIR}"
 
-# ---------- 2. 配置 Git 全局凭证 ----------
+# ---------- 2. 配置 Git 凭证（仅作用于同步 repo，不修改全局 git 配置）----------
 log "配置 Git 凭证..."
-git config --global user.name "Overleaf Sync Bot"
-git config --global user.email "overleaf-sync@localhost"
-git config --global init.defaultBranch main
 
-# 使用 credential helper store 保存 token
+# 使用项目级 gitconfig，不污染全局 ~/.gitconfig
+GIT_CONFIG_FILE="${SYNC_DIR}/.gitconfig"
+git config -f "${GIT_CONFIG_FILE}" user.name "Overleaf Sync Bot"
+git config -f "${GIT_CONFIG_FILE}" user.email "overleaf-sync@localhost"
+git config -f "${GIT_CONFIG_FILE}" init.defaultBranch main
+
 CREDENTIAL_FILE="${SYNC_DIR}/.git-credentials"
 echo "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com" > "${CREDENTIAL_FILE}"
 chmod 600 "${CREDENTIAL_FILE}"
-git config --global credential.helper "store --file=${CREDENTIAL_FILE}"
+git config -f "${GIT_CONFIG_FILE}" credential.helper "store --file=${CREDENTIAL_FILE}"
+
+log "Git 配置文件: ${GIT_CONFIG_FILE}（不影响全局 git 配置）"
 
 # ---------- 3. 创建 mapping 配置文件 ----------
 MAPPING_FILE="${SYNC_DIR}/project-repo-mapping.json"

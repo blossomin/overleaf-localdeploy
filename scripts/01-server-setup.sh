@@ -3,8 +3,9 @@ set -euo pipefail
 
 ######################################################################
 # 01-server-setup.sh
-# 远端服务器环境准备：安装 Docker、Docker Compose、基础工具、防火墙
+# 远端服务器环境准备：安装 Docker、Docker Compose、基础工具
 # 适用于 Ubuntu 22.04+ / Debian 12+
+# 安全说明：不操作防火墙，不重启系统服务，不影响 SSH
 ######################################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -20,10 +21,11 @@ fi
 
 log "===== 服务器环境准备开始 ====="
 
-# ---------- 1. 系统更新 ----------
-log "1/6 更新系统包..."
+# ---------- 1. 系统更新（仅更新索引，不升级已有包，避免 SSH/内核变化）----------
+log "1/6 更新包索引..."
 apt-get update -qq
-apt-get upgrade -y -qq
+# 注意：跳过 apt-get upgrade，避免升级 openssh-server 或内核导致 SSH 断连
+# 如需系统升级，请在维护窗口手动执行: apt-get upgrade -y
 
 # ---------- 2. 安装基础工具 ----------
 log "2/6 安装基础工具 (git, curl, jq, unzip, ca-certificates)..."

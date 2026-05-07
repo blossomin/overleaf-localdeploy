@@ -27,6 +27,9 @@ MAPPING_FILE="${SYNC_DIR}/project-repo-mapping.json"
 TMP_DIR="${SYNC_DIR}/tmp"
 LOCK_FILE="${SYNC_DIR}/.sync.lock"
 
+# 使用项目级 gitconfig，不影响全局 git 配置
+export GIT_CONFIG_GLOBAL="${SYNC_DIR}/.gitconfig"
+
 DRY_RUN=false
 SINGLE_PROJECT_ID=""
 

@@ -43,11 +43,19 @@ echo "========== \$(date '+%Y-%m-%d %H:%M:%S') cron 同步结束 ==========" >> 
 WRAPEOF
 chmod +x "${CRON_WRAPPER}"
 
-# ---------- 3. 安装 cron 任务 ----------
+# ---------- 3. 安装 cron 任务（安全方式：备份原有 crontab 再追加）----------
 CRON_LINE="*/${SYNC_INTERVAL} * * * * ${CRON_WRAPPER}"
 
-# 移除旧的同步 cron（如果有），再添加新的
-(crontab -l 2>/dev/null | grep -v "cron-sync-wrapper.sh" | grep -v "overleaf-github-sync.sh"; echo "${CRON_LINE}") | crontab -
+# 备份当前 crontab
+CRON_BACKUP="${LOGS_DIR}/crontab-backup-$(date +%Y%m%d%H%M%S).txt"
+crontab -l > "${CRON_BACKUP}" 2>/dev/null || true
+log "已备份现有 crontab 到: ${CRON_BACKUP}"
+
+# 安全追加：仅移除本项目的旧条目（精确匹配路径），保留其他所有条目
+EXISTING=$(crontab -l 2>/dev/null || true)
+NEW_CRONTAB=$(echo "${EXISTING}" | grep -vF "${CRON_WRAPPER}" || true)
+echo "${NEW_CRONTAB}
+${CRON_LINE}" | crontab -
 
 log "Cron 任务已安装：每 ${SYNC_INTERVAL} 分钟执行一次"
 log "日志文件: ${LOGS_DIR}/github-sync.log"
