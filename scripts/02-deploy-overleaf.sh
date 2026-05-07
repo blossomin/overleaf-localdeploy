@@ -43,11 +43,10 @@ bin/init --tls 2>/dev/null || bin/init 2>/dev/null || {
 }
 # 无论 init 是否成功，确保必要的目录和文件存在
 mkdir -p config/nginx/certs
-# 确保 version 文件存在（bin/init 生成的，控制 docker 镜像版本）
-if [[ ! -f config/version ]]; then
-  echo "5.5" > config/version
-  log "已创建 config/version (默认 5.5)"
-fi
+# 设置 docker 镜像版本（bin/init 生成的，控制 docker 镜像版本）
+# 使用 with-texlive-full 镜像，包含完整的 TexLive 发行版
+echo "6.1.0-with-texlive-full" > config/version
+log "已设置 config/version = 6.1.0-with-texlive-full"
 
 # ---------- 3. 生成 overleaf.rc ----------
 log "3/4 生成 config/overleaf.rc..."
