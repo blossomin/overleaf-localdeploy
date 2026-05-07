@@ -1,0 +1,190 @@
+######################################################################
+# Dockerfile.custom-texlive
+# 基于 sharelatex:6.1.2，安装学术论文写作常用的 TexLive 宏包
+# 支持 ACM (acmart)、IEEE (IEEEtran)、USENIX 及基础论文写作
+#
+# 构建：
+#   docker build -f Dockerfile.custom-texlive -t rakusa/sharelatex-custom:6.1.2 .
+#
+# 镜像大小约 3-3.5GB（比 scheme-full 的 7GB+ 小很多）
+######################################################################
+
+FROM sharelatex/sharelatex:6.1.2
+
+# 设置 TexLive 源
+RUN tlmgr option repository https://mirror.ctan.org/systems/texlive/tlnet \
+    && tlmgr update --self
+
+# ---- ACM 模板 (acmart) ----
+RUN tlmgr install \
+    acmart \
+    amsfonts \
+    amsmath \
+    amscls \
+    balance \
+    booktabs \
+    caption \
+    comment \
+    cmap \
+    environ \
+    fancyhdr \
+    float \
+    geometry \
+    hyperref \
+    libertine \
+    microtype \
+    minted \
+    natbib \
+    ncctools \
+    newtx \
+    preprint \
+    setspace \
+    subcaption \
+    textcase \
+    totpages \
+    trimspaces \
+    xkeyval \
+    xstring
+
+# ---- IEEE 模板 (IEEEtran) ----
+RUN tlmgr install \
+    ieeetran \
+    cite \
+    algorithms \
+    algorithmicx \
+    algorithm2e \
+    ifoddpage \
+    relsize \
+    listings \
+    multirow \
+    pdfpages \
+    sttools
+
+# ---- USENIX 模板 ----
+RUN tlmgr install \
+    usenix-conference-style \
+    endnotes \
+    titlesec \
+    enumitem \
+    flushend
+
+# ---- 基础论文写作 ----
+RUN tlmgr install \
+    latexmk \
+    biber \
+    biblatex \
+    biblatex-ieee \
+    csquotes \
+    logreq \
+    xcolor \
+    graphicx \
+    graphics \
+    pgf \
+    tikz-cd \
+    pgfplots \
+    todonotes \
+    cleveref \
+    url \
+    breakurl \
+    appendix \
+    paralist \
+    soul \
+    xspace \
+    etoolbox \
+    ifthen \
+    ifmtarg \
+    lipsum \
+    blindtext
+
+# ---- 字体和编码 ----
+RUN tlmgr install \
+    fontspec \
+    unicode-math \
+    lm \
+    lm-math \
+    cm-super \
+    ec \
+    fontenc \
+    inputenc \
+    times \
+    helvet \
+    courier \
+    txfonts \
+    pxfonts \
+    mathptmx \
+    inconsolata \
+    sourcecodepro \
+    sourcesanspro
+
+# ---- 表格和图表增强 ----
+RUN tlmgr install \
+    colortbl \
+    longtable \
+    makecell \
+    tabularx \
+    tabulary \
+    threeparttable \
+    wrapfig \
+    adjustbox \
+    collectbox \
+    subfig \
+    placeins
+
+# ---- 代码排版 ----
+RUN tlmgr install \
+    fvextra \
+    upquote \
+    lineno \
+    catchfile \
+    framed \
+    fancyvrb
+
+# ---- 其他常用工具 ----
+RUN tlmgr install \
+    lastpage \
+    changepage \
+    footmisc \
+    mdframed \
+    needspace \
+    zref \
+    pdflscape \
+    pdfcol \
+    pdfcomment \
+    marginnote \
+    soulpos \
+    standalone \
+    currfile \
+    gettitlestring \
+    hycolor \
+    letltxmacro \
+    refcount \
+    rerunfilecheck \
+    stringenc \
+    uniquecounter
+
+# ---- 中文支持 ----
+RUN tlmgr install \
+    ctex \
+    cjk \
+    cjkutils \
+    xecjk \
+    zhnumber \
+    zhmetrics \
+    zhmetrics-uptex \
+    fandol \
+    arphic \
+    arphic-ttf
+
+# 安装系统级中文字体（文鼎、Noto CJK）
+RUN apt-get update -qq \
+    && apt-get install -y -qq --no-install-recommends \
+       fonts-noto-cjk \
+       fonts-noto-cjk-extra \
+       fonts-wqy-zenhei \
+       fonts-wqy-microhei \
+    && fc-cache -fv \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 清理缓存
+RUN rm -rf /tmp/* /var/tmp/*
