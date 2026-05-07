@@ -71,24 +71,15 @@ log "5/6 创建 Overleaf 工作目录..."
 mkdir -p "${OVERLEAF_BASE_DIR}"/{data/sharelatex,data/mongo,data/redis,github-repos,scripts,logs}
 log "工作目录: ${OVERLEAF_BASE_DIR}"
 
-# ---------- 6. 防火墙配置 ----------
-log "6/6 配置防火墙..."
-if command -v ufw &>/dev/null; then
-  ufw allow 22/tcp comment "SSH" 2>/dev/null || true
-  ufw allow "${TLS_PORT}/tcp" comment "HTTPS" 2>/dev/null || true
-  [[ -n "${NGINX_HTTP_PORT}" ]] && ufw allow "${NGINX_HTTP_PORT}/tcp" comment "HTTP redirect" 2>/dev/null || true
-  ufw --force enable 2>/dev/null || true
-  ufw status verbose
-elif command -v firewall-cmd &>/dev/null; then
-  firewall-cmd --permanent --add-port="${TLS_PORT}/tcp" 2>/dev/null || true
-  [[ -n "${NGINX_HTTP_PORT}" ]] && firewall-cmd --permanent --add-port="${NGINX_HTTP_PORT}/tcp" 2>/dev/null || true
-  firewall-cmd --reload 2>/dev/null || true
-else
-  log "未检测到 ufw 或 firewalld，请手动确保以下端口已开放:"
-  log "  - ${TLS_PORT}/tcp (HTTPS)"
-  [[ -n "${NGINX_HTTP_PORT}" ]] && log "  - ${NGINX_HTTP_PORT}/tcp (HTTP 重定向)"
-  log "  - 22/tcp (SSH，如需远程管理)"
-fi
+# ---------- 6. 端口检查（不配置防火墙）----------
+log "6/6 检查端口占用..."
+for port in ${TLS_PORT} ${NGINX_HTTP_PORT}; do
+  [[ -z "${port}" ]] && continue
+  if ss -tlnp 2>/dev/null | grep -q ":${port} "; then
+    log "警告: 端口 ${port} 已被占用，可能导致 NGINX 启动失败"
+  fi
+done
+log "请确保以下端口可访问: ${TLS_PORT}/tcp (HTTPS)${NGINX_HTTP_PORT:+, ${NGINX_HTTP_PORT}/tcp (HTTP)}"
 
 log "===== 服务器环境准备完成 ====="
 log "Docker: $(docker --version)"
