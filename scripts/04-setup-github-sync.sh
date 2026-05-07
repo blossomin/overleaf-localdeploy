@@ -62,7 +62,14 @@ fi
 SYNC_SCRIPT_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/overleaf-github-sync.sh"
 SYNC_SCRIPT_DST="${SCRIPTS_DIR}/overleaf-github-sync.sh"
 
-if [[ -f "${SYNC_SCRIPT_SRC}" ]]; then
+# 解析真实路径，避免源和目标相同时 cp 报错
+SYNC_SCRIPT_SRC_REAL="$(readlink -f "${SYNC_SCRIPT_SRC}" 2>/dev/null || echo "${SYNC_SCRIPT_SRC}")"
+SYNC_SCRIPT_DST_REAL="$(readlink -f "${SYNC_SCRIPT_DST}" 2>/dev/null || echo "${SYNC_SCRIPT_DST}")"
+
+if [[ "${SYNC_SCRIPT_SRC_REAL}" == "${SYNC_SCRIPT_DST_REAL}" ]]; then
+  chmod +x "${SYNC_SCRIPT_DST}"
+  log "同步脚本源和目标为同一文件，跳过拷贝: ${SYNC_SCRIPT_DST}"
+elif [[ -f "${SYNC_SCRIPT_SRC}" ]]; then
   cp "${SYNC_SCRIPT_SRC}" "${SYNC_SCRIPT_DST}"
   chmod +x "${SYNC_SCRIPT_DST}"
   log "同步脚本已安装到: ${SYNC_SCRIPT_DST}"
