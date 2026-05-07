@@ -1,0 +1,6 @@
+[submodule "overleaf"]
+	path = overleaf
+	url = https://github.com/overleaf/overleaf.git
+[submodule "toolkit"]
+	path = toolkit
+	url = https://github.com/overleaf/toolkit.git
