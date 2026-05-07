@@ -283,16 +283,14 @@ main() {
   local projects_json
   if [[ -n "${SINGLE_PROJECT_ID}" ]]; then
     # 同步单个项目
-    projects_json=$(docker exec mongo mongosh --quiet --eval "
-      use sharelatex;
+    projects_json=$(docker exec mongo mongosh --quiet "mongodb://localhost/sharelatex" --eval "
       const p = db.projects.findOne({_id: ObjectId('${SINGLE_PROJECT_ID}')}, {name: 1});
       if (p) printjson([{id: p._id.toString(), name: p.name}]);
       else printjson([]);
     " 2>/dev/null || echo "[]")
   else
     # 同步所有项目
-    projects_json=$(docker exec mongo mongosh --quiet --eval "
-      use sharelatex;
+    projects_json=$(docker exec mongo mongosh --quiet "mongodb://localhost/sharelatex" --eval "
       const projects = db.projects.find({}, {name: 1}).toArray();
       printjson(projects.map(p => ({id: p._id.toString(), name: p.name})));
     " 2>/dev/null || echo "[]")
